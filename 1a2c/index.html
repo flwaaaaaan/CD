@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作文文本查看器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .serif-font {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .essay-content {
+            line-height: 1.8;
+            letter-spacing: 0.05em;
+            text-indent: 2em;
+        }
+
+        .essay-content p {
+            margin-bottom: 1.5rem;
+        }
+
+        /* 隐藏滚动条但保持功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* 进度条 */
+        #progress-bar {
+            height: 4px;
+            background: #3b82f6;
+            width: 0%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 50;
+            transition: width 0.1s;
+        }
+
+        /* 护眼模式 */
+        .eye-care-mode {
+            background-color: #f4ecd8 !important;
+            color: #3e3321 !important;
+        }
+
+        .eye-care-mode .card {
+            background-color: #fdf6e3 !important;
+            border-color: #e6dec3 !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- 阅读进度条 -->
+    <div id="progress-bar"></div>
+
+    <div class="max-w-3xl mx-auto px-4 py-12">
+        <!-- 顶部控制栏 -->
+        <div class="flex flex-wrap items-center justify-between mb-8 gap-4 sticky top-4 z-40 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm border border-gray-100 card">
+            <div class="flex items-center space-x-2">
+                <button onclick="changeFontSize(-2)" class="p-2 hover:bg-gray-100 rounded-lg transition" title="减小字体">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
+                </button>
+                <span id="font-size-label" class="text-sm font-medium w-12 text-center">18px</span>
+                <button onclick="changeFontSize(2)" class="p-2 hover:bg-gray-100 rounded-lg transition" title="增大字体">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleEyeCare()" class="flex items-center space-x-1 px-3 py-2 bg-amber-100 text-amber-800 rounded-full text-sm font-medium hover:bg-amber-200 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 5a7 7 0 100 14 7 7 0 000-14z" /></svg>
+                    <span>护眼模式</span>
+                </button>
+                <div class="h-6 w-px bg-gray-200"></div>
+                <div class="text-xs text-gray-500">
+                    字数: <span id="word-count" class="font-bold">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 作文正文区域 -->
+        <article class="bg-white p-8 md:p-12 rounded-3xl shadow-xl border border-gray-100 card">
+            <header class="mb-10 text-center border-b border-gray-100 pb-8">
+                <h1 id="essay-title" class="text-3xl md:text-4xl font-bold text-gray-900 serif-font mb-4">
+                    窗外的四季
+                </h1>
+                <div class="flex items-center justify-center space-x-4 text-gray-500 text-sm">
+                    <span>作者：林语</span>
+                    <span>•</span>
+                    <span>分类：写景散文</span>
+                    <span>•</span>
+                    <span id="read-time">阅读约 3 分钟</span>
+                </div>
+            </header>
+
+            <div id="essay-body" class="essay-content serif-font text-lg text-gray-700">
+                <p>我家的书桌正对着一扇明亮的铝合金窗户。这窗子虽然普通，却像是一框流动的画卷，不知疲倦地为我展现着大自然最诚挚的表情。</p>
+                
+                <p>春天，当第一抹新绿攀上楼下的老槐树梢时，我便知道，四季的轮转又开始了。窗外的风不再凛冽，而是带着一种湿润的、草木发芽的清香。细雨蒙蒙的时节，窗户上会挂满细碎的水珠，宛如珍珠帘幕。透过这层水帘望出去，世界变得柔和而朦胧，远处的建筑在烟雨中若隐若现，像极了宣纸上晕染开的水墨画。</p>
+
+                <p>转眼到了盛夏，窗外成了蝉鸣的舞台。槐树叶变得浓绿而肥厚，严严实实地挡住了正午的烈日。阳光斑驳地洒在窗台上，偶尔有几只麻雀扑棱着翅膀，在枝头争吵几句，又迅速飞走。每当雷阵雨袭来，狂风卷着树叶在窗前乱舞，那种生命力在极致爆发后的宁静，总能让我烦躁的心平静下来。</p>
+
+                <p>秋天是我最喜欢的季节。窗外的老槐树渐渐褪去了绿装，换上了深黄的羽衣。清晨，空气中透着一丝凉意，阳光变得澄澈而透明，不再咄咄逼人。偶尔有一枚落叶被风带起，贴着玻璃滑落，留下一道干枯而孤独的轨迹。这种寥廓的景象，常让我陷入长久的沉思。</p>
+
+                <p>当北风开始呼啸，冬天的脚步便近了。树木剩下了虬劲的枯枝，在灰蒙蒙的天空下显得格外坚韧。下雪的时候最美，雪花轻柔地敲打着窗棂，发出沙沙的声响。我坐在暖气充足的房间里，隔着窗户看着外面的银装素裹，仿佛与世界保持着一种恰到好处的距离——既能欣赏它的纯净，又不必承受它的寒冷。</p>
+
+                <p>这扇窗，伴随我度过了无数个伏案疾书的夜晚。它不仅是采光的通道，更是我心灵呼吸的窗口。窗外的四季在变，我的思考也在增长。那些悄然流逝的时光，都刻在了窗棂的每一道细纹里。</p>
+            </div>
+
+            <footer class="mt-12 pt-6 border-t border-gray-100 text-center text-gray-400 text-sm italic">
+                —— 完 ——
+            </footer>
+        </article>
+
+        <!-- 底部快速操作 -->
+        <div class="mt-8 flex justify-center space-x-4">
+            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="p-3 bg-white rounded-full shadow-md hover:shadow-lg transition-all text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentFontSize = 18;
+        const essayBody = document.getElementById('essay-body');
+        const fontSizeLabel = document.getElementById('font-size-label');
+        const progressBar = document.getElementById('progress-bar');
+
+        // 初始化字数统计
+        function updateStats() {
+            const text = essayBody.innerText;
+            const count = text.replace(/\s/g, '').length;
+            document.getElementById('word-count').innerText = count;
+            
+            // 粗略估算阅读时间 (300字/分钟)
+            const minutes = Math.max(1, Math.ceil(count / 300));
+            document.getElementById('read-time').innerText = `阅读约 ${minutes} 分钟`;
+        }
+
+        // 修改字体大小
+        function changeFontSize(delta) {
+            currentFontSize += delta;
+            if (currentFontSize < 12) currentFontSize = 12;
+            if (currentFontSize > 36) currentFontSize = 36;
+            
+            essayBody.style.fontSize = currentFontSize + 'px';
+            fontSizeLabel.innerText = currentFontSize + 'px';
+        }
+
+        // 切换护眼模式
+        function toggleEyeCare() {
+            document.body.classList.toggle('eye-care-mode');
+        }
+
+        // 滚动进度监听
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            progressBar.style.width = scrolled + "%";
+        });
+
+        // 页面加载运行
+        window.onload = () => {
+            updateStats();
+        };
+    </script>
+</body>
+</html>
